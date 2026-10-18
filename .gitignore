@@ -1,0 +1,15 @@
+.venv/
+.env
+environ/
+data/
+__pycache__/
+*.pyc
+.DS_Store
+*.tfstate
+*.backup
+*.tfvars
+.*.drawio.bkp
+.*.drawio.dtmp
+__pycache__/
+.ipynb_checkpoints/
+checkpoints/
