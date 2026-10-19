@@ -9,7 +9,7 @@ from alpaca.data.enums import DataFeed
 from datetime import datetime, timezone
 from uuid import uuid4
 from metadata import add_ingestion_metadata
-from validation import validate_stock_record
+from validation import validate_stock_record, get_validation_failure_reason
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -48,6 +48,16 @@ stock_data["is_valid"] = stock_data.apply(
 valid_stock_data = stock_data[stock_data["is_valid"]].copy()
 invalid_stock_data = stock_data[~stock_data["is_valid"]].copy()
 
+stock_data["validation_failure_reason"] = stock_data.apply(
+    lambda row: get_validation_failure_reason(row.to_dict()),
+    axis=1
+)
+
+print(
+    stock_data[
+        ["symbol", "is_valid", "validation_failure_reason"]
+    ].head()
+)
 print(stock_data.head())
 print(stock_data.columns.tolist())
 print("Number of rows:", len(stock_data))

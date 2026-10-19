@@ -1,4 +1,4 @@
-from scripts.validation import validate_stock_record
+from scripts.validation import validate_stock_record, get_validation_failure_reason
 from datetime import datetime, timezone
 
 
@@ -40,3 +40,19 @@ def test_missing_timestamp():
     }
 
     assert validate_stock_record(record) is False
+
+
+def test_negative_volume_reason():
+    record = {
+        "symbol": "AAPL",
+        "timestamp": "2026-10-12T13:30:00Z",
+        "open": 250,
+        "high": 255,
+        "low": 248,
+        "close": 253,
+        "volume": -100
+    }
+
+    result = get_validation_failure_reason(record)
+
+    assert result == "negative_volume"
