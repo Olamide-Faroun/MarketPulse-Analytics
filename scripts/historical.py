@@ -9,6 +9,7 @@ from alpaca.data.enums import DataFeed
 from datetime import datetime, timezone
 from uuid import uuid4
 from metadata import add_ingestion_metadata
+from validation import validate_stock_record
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,15 +39,28 @@ request = StockBarsRequest(
 
 bars = client.get_stock_bars(request)
 stock_data = bars.df.reset_index()
-
 stock_data = add_ingestion_metadata(stock_data)
+
+stock_data["is_valid"] = stock_data.apply(
+    lambda row: validate_stock_record(row.to_dict()),
+    axis=1
+)
+valid_stock_data = stock_data[stock_data["is_valid"]].copy()
+invalid_stock_data = stock_data[~stock_data["is_valid"]].copy()
 
 print(stock_data.head())
 print(stock_data.columns.tolist())
-
 print("Number of rows:", len(stock_data))
 print("Column names:", bars.df.columns.tolist())
 print(bars.df.index.get_level_values("symbol").unique())
 print(bars.df.groupby(level="symbol").size())
 print("Stocks loaded:", symbols)
 print("Number of stocks:", len(symbols))
+print("Total records:", len(stock_data))
+print("Valid records:", len(valid_stock_data))
+print("Invalid records:", len(invalid_stock_data))
+
+
+assert len(stock_data) == (
+    len(valid_stock_data) + len(invalid_stock_data)
+)
