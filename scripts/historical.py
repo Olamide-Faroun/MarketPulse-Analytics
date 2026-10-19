@@ -7,6 +7,8 @@ from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 from alpaca.data.enums import DataFeed
 from datetime import datetime, timezone
+from uuid import uuid4
+from metadata import add_ingestion_metadata
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,9 +37,14 @@ request = StockBarsRequest(
 )
 
 bars = client.get_stock_bars(request)
-print (bars.df.head())
+stock_data = bars.df.reset_index()
 
-print("Number of rows:", len(bars.df))
+stock_data = add_ingestion_metadata(stock_data)
+
+print(stock_data.head())
+print(stock_data.columns.tolist())
+
+print("Number of rows:", len(stock_data))
 print("Column names:", bars.df.columns.tolist())
 print(bars.df.index.get_level_values("symbol").unique())
 print(bars.df.groupby(level="symbol").size())
