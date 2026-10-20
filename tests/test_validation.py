@@ -1,6 +1,5 @@
-from scripts.validation import validate_stock_record, get_validation_failure_reason
+from scripts.validation import validate_stock_record, get_validation_failure_reason, check_stock_record
 from datetime import datetime, timezone
-
 
 def test_valid_stock_record():
 
@@ -45,7 +44,7 @@ def test_missing_timestamp():
 def test_negative_volume_reason():
     record = {
         "symbol": "AAPL",
-        "timestamp": "2026-10-12T13:30:00Z",
+        "timestamp": datetime(2026, 10, 12, 13, 30, tzinfo=timezone.utc),
         "open": 250,
         "high": 255,
         "low": 248,
@@ -56,3 +55,17 @@ def test_negative_volume_reason():
     result = get_validation_failure_reason(record)
 
     assert result == "negative_volume"
+
+
+def test_invalid_price_range():
+    record = {
+        "symbol": "AAPL",
+        "timestamp": datetime(2026, 10, 12, 13, 30, tzinfo=timezone.utc),
+        "open": 250,
+        "high": 245,
+        "low": 240,
+        "close": 253,
+        "volume": 12000
+    }
+
+    assert check_stock_record(record) == "invalid_price_range"
