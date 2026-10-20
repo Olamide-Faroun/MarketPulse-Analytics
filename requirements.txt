@@ -10,9 +10,11 @@ numpy==2.4.6
 packaging==26.3
 pandas==3.0.6
 pluggy==1.7.0
+py4j==0.10.9.7
 pydantic==2.14.1
 pydantic_core==2.50.1
 Pygments==2.21.0
+pyspark==3.5.7
 pytest==9.1.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.4
