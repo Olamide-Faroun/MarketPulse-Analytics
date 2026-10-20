@@ -11,6 +11,25 @@ from uuid import uuid4
 from metadata import add_ingestion_metadata
 from validation import validate_stock_record, get_validation_failure_reason
 
+# Your existing imports
+
+
+def get_historical_stock_data():
+
+    # 1. Read the stock configuration
+
+    # 2. Create the Alpaca client
+
+    # 3. Request historical stock data
+
+    # 4. Add ingestion metadata
+
+    # 5. Validate the records
+
+    # 6. Separate valid and invalid records
+
+    return valid_stock_data, invalid_stock_data
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 config_path = BASE_DIR / "config" / "stocks.json"
@@ -74,3 +93,9 @@ print("Invalid records:", len(invalid_stock_data))
 assert len(stock_data) == (
     len(valid_stock_data) + len(invalid_stock_data)
 )
+
+if __name__ == "__main__":
+    valid_data, invalid_data = get_historical_stock_data()
+
+    print("Valid records:", len(valid_data))
+    print("Invalid records:", len(invalid_data))
