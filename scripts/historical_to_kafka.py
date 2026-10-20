@@ -1,6 +1,7 @@
 import json
 from confluent_kafka import Producer
 from historical import get_historical_stock_data
+from message_format import prepare_kafka_messages
 
 
 valid_data, invalid_data = get_historical_stock_data()
@@ -20,12 +21,7 @@ assert sample_data["symbol"].nunique() == 10
 
 print(sample_data[["symbol", "timestamp", "close"]])
 
-messages = json.loads(
-    sample_data.to_json(
-        orient="records",
-        date_format="iso"
-    )
-)
+messages = prepare_kafka_messages(sample_data)
 
 delivery_failures = []
 
