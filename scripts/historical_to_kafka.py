@@ -12,7 +12,11 @@ producer = Producer({
     "bootstrap.servers": "localhost:9092"
 })
 
-sample_data = valid_data.head(5)
+sample_data = valid_data.groupby("symbol").head(1)
+print("Stocks selected:", sample_data["symbol"].tolist())
+print("Number of records:", len(sample_data))
+assert len(sample_data) == 10
+assert sample_data["symbol"].nunique() == 10
 
 print(sample_data[["symbol", "timestamp", "close"]])
 
@@ -46,4 +50,4 @@ remaining = producer.flush(timeout=30)
 if remaining > 0 or delivery_failures:
     raise RuntimeError("Some Kafka messages were not delivered")
 
-print("All five records delivered successfully.")
+print("All selected records delivered successfully.")
