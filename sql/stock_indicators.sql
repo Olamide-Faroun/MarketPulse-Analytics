@@ -7,7 +7,10 @@ CREATE TABLE IF NOT EXISTS stock_indicators (
 
     calculation_window_minutes INTEGER NOT NULL,
 
+    price_return_percentage NUMERIC(12,6),
+    price_range_percentage NUMERIC(12,6),
     moving_average_price NUMERIC(18,6),
+    average_trading_volume NUMERIC(18,4),
     volatility_percentage NUMERIC(12,6),
 
     data_source VARCHAR(100) NOT NULL,
@@ -38,3 +41,12 @@ CREATE TABLE IF NOT EXISTS stock_indicators (
             OR volatility_percentage >= 0
         )
 );
+
+ALTER TABLE stock_indicators
+ADD COLUMN IF NOT EXISTS price_return_percentage NUMERIC(12,6);
+
+ALTER TABLE stock_indicators
+ADD COLUMN IF NOT EXISTS price_range_percentage NUMERIC(12,6);
+
+ALTER TABLE stock_indicators
+ADD COLUMN IF NOT EXISTS average_trading_volume NUMERIC(18,4);

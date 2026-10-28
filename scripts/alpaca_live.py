@@ -48,27 +48,27 @@ async def handle_stock_bar(bar):
         "volume": bar.volume,
     }
 
-    # Add ingestion metadata
+
     record["data_source"] = "Alpaca Markets"
     record["market_data_feed"] = "IEX"
     record["ingestion_timestamp_utc"] = datetime.now(timezone.utc)
     record["pipeline_run_id"] = pipeline_run_id
     record["pipeline_stage"] = "live_ingestion"
 
-    # Validate the record
+
     failure_reason = check_stock_record(record)
 
     if failure_reason is not None:
         print("Rejected record:", record["symbol"], failure_reason)
         return
 
-    # Convert datetime objects into JSON-compatible strings
+
     record["timestamp"] = record["timestamp"].isoformat()
     record["ingestion_timestamp_utc"] = (
         record["ingestion_timestamp_utc"].isoformat()
     )
 
-    # Send to Kafka
+
     producer.produce(
     topic="stock_prices_raw",
     key=record["symbol"].encode("utf-8"),

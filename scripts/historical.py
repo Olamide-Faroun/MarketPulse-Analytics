@@ -16,17 +16,7 @@ from validation import validate_stock_record, get_validation_failure_reason
 
 def get_historical_stock_data():
 
-    # 1. Read the stock configuration
 
-    # 2. Create the Alpaca client
-
-    # 3. Request historical stock data
-
-    # 4. Add ingestion metadata
-
-    # 5. Validate the records
-
-    # 6. Separate valid and invalid records
 
     return valid_stock_data, invalid_stock_data
 

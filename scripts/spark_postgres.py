@@ -11,7 +11,7 @@ database_password = os.getenv("POSTGRES_PASSWORD")
 if not database_password:
     raise ValueError("POSTGRES_PASSWORD is missing")
 
-# Create Spark session
+
 spark = (
     SparkSession.builder
     .appName("MarketPulsePostgreSQL")
@@ -26,7 +26,7 @@ spark = (
 spark.sparkContext.setLogLevel("WARN")
 spark.conf.set("spark.sql.session.timeZone", "UTC")
 
-# PostgreSQL connection settings
+
 database_url = (
     "jdbc:postgresql://localhost:5433/marketpulse_db"
 )
@@ -37,7 +37,7 @@ database_properties = {
     "driver": "org.postgresql.Driver"
 }
 
-# Check database connection
+
 stock_prices = spark.read.jdbc(
     url=database_url,
     table="stock_prices",
