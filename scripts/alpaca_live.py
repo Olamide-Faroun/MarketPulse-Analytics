@@ -81,5 +81,5 @@ async def handle_stock_bar(bar):
     print("Queued for Kafka:", record["symbol"])
 
 
-stream.subscribe_bars(handle_stock_bar, "AAPL")
+stream.subscribe_bars(handle_stock_bar, *symbols)
 stream.run()

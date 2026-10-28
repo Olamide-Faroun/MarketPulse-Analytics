@@ -1,6 +1,8 @@
 
 from pyspark.sql import SparkSession
 
+from pyspark.sql.functions import col, round
+
 # Start Spark
 spark = (
     SparkSession.builder
@@ -27,6 +29,15 @@ stock_df = spark.createDataFrame(
 
 stock_df.show()
 stock_df.printSchema()
+
+stock_df = stock_df.withColumn(
+    "price_change_percentage",
+    round(
+        ((col("close") - col("open")) / col("open")) * 100,
+        2
+    )
+)
+stock_df.show()
 
 # Stop Spark
 spark.stop()

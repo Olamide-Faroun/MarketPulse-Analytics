@@ -2,6 +2,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, from_json, round, to_timestamp
 from pyspark.sql.types import (StructType, StructField, StringType, DoubleType, LongType, BooleanType)
+from postgres_writer import write_stock_batch
 
 
 spark = (SparkSession.builder.appName("MarketPulseKafkaConsumer").master("local[*]").config(
@@ -101,10 +102,13 @@ display_data = processed_stock_data.select(
 )
 
 query = (
-    display_data.writeStream
-    .format("console")
+    processed_stock_data.writeStream
+    .foreachBatch(write_stock_batch)
     .outputMode("append")
-    .option("truncate", "false")
+    .option(
+        "checkpointLocation",
+        "checkpoints/stock_prices_postgres"
+    )
     .start()
 )
 
