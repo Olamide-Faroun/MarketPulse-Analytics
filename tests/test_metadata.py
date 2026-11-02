@@ -1,5 +1,4 @@
 import pandas as pd
-
 from scripts.metadata import add_ingestion_metadata
 
 

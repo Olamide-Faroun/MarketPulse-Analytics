@@ -1,4 +1,3 @@
-
 set -euo pipefail
 cd "$(dirname "$0")/.."
 echo "Starting MarketPulse infrastructure..."

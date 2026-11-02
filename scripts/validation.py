@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from math import isfinite
 from numbers import Real

@@ -1,5 +1,4 @@
 import pandas as pd
-
 from scripts.message_format import prepare_kafka_messages
 
 

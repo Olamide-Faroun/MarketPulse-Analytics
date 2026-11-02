@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS stock_symbols (
 
     symbol VARCHAR(20) PRIMARY KEY,

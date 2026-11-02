@@ -1,6 +1,4 @@
-
 import os
-
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 
@@ -19,8 +17,7 @@ spark = (
     .config(
         "spark.jars.packages",
         "org.postgresql:postgresql:42.7.14"
-    )
-    .getOrCreate()
+    ).getOrCreate()
 )
 
 spark.sparkContext.setLogLevel("WARN")

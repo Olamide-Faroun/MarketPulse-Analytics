@@ -1,8 +1,5 @@
-
 from pyspark.sql import SparkSession
-
 from pyspark.sql.functions import col, round
-
 
 spark = (
     SparkSession.builder
@@ -10,8 +7,6 @@ spark = (
     .master("local[*]")
     .getOrCreate()
 )
-
-
 print("Spark version:", spark.version)
 
 stock_data = [
@@ -38,6 +33,4 @@ stock_df = stock_df.withColumn(
     )
 )
 stock_df.show()
-
-
 spark.stop()

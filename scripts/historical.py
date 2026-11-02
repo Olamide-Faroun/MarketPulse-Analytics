@@ -11,13 +11,8 @@ from uuid import uuid4
 from metadata import add_ingestion_metadata
 from validation import validate_stock_record, get_validation_failure_reason
 
-# Your existing imports
-
 
 def get_historical_stock_data():
-
-
-
     return valid_stock_data, invalid_stock_data
 
 BASE_DIR = Path(__file__).resolve().parent.parent

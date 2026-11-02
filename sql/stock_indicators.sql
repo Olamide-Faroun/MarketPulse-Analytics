@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS stock_indicators (
 
     symbol VARCHAR(20) NOT NULL,
