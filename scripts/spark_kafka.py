@@ -1,10 +1,11 @@
 import os
 from dotenv import load_dotenv
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.functions import (col, from_json, round, to_timestamp)
 from pyspark.sql.types import (StructType, StructField, StringType, DoubleType, BooleanType)
 from postgres_writer import write_stock_batch
 from spark_indicators import (calculate_stock_indicators, save_stock_indicators)
+from datetime import timedelta
 
 load_dotenv()
 
@@ -53,42 +54,96 @@ stock_schema = StructType([
     StructField("validation_failure_reason", StringType())
 ])
 
-
 def refresh_stock_indicators(batch_df, batch_id):
 
-    print(f"Refreshing indicators for batch {batch_id}")
-
     spark_session = batch_df.sparkSession
-    stock_prices = spark_session.read.jdbc(
-        url=database_url,
-        table="stock_prices",
-        properties=database_properties
+
+    affected_groups = (
+        batch_df
+        .groupBy("symbol", "market_data_feed")
+        .agg(
+            F.min("market_timestamp_utc").alias("first_bar"),
+            F.max("market_timestamp_utc").alias("last_bar")
+        )
+        .collect()
     )
 
-    indicators = calculate_stock_indicators(stock_prices)
+    print(
+        f"Refreshing {len(affected_groups)} "
+        f"stock/feed groups in batch {batch_id}"
+    )
 
-    save_stock_indicators(indicators, database_password)
+    for group in affected_groups:
+
+        symbol = group["symbol"]
+        feed = group["market_data_feed"]
+        first_bar = group["first_bar"]
+        last_bar = group["last_bar"]
+
+        history_start = first_bar - timedelta(minutes=5)
+        affected_end = last_bar + timedelta(minutes=5)
+
+        stock_prices = (
+            spark_session.read.jdbc(
+                url=database_url,
+                table="stock_prices",
+                properties=database_properties
+            )
+            .filter(F.col("symbol") == symbol)
+            .filter(F.col("market_data_feed") == feed)
+            .filter(
+                F.col("market_timestamp_utc") >= history_start
+            )
+            .filter(
+                F.col("market_timestamp_utc") <= affected_end
+            )
+        )
+
+        indicators = calculate_stock_indicators(stock_prices)
+
+        affected_indicators = indicators.filter(
+            (F.col("market_timestamp_utc") >= first_bar)
+            & (F.col("market_timestamp_utc") <= affected_end)
+        )
+
+        save_stock_indicators(
+            affected_indicators,
+            database_password
+        )
+
+        print(
+            f"Updated indicators for {symbol} "
+            f"({feed}) in batch {batch_id}"
+        )
 
     print(f"Indicators refreshed for batch {batch_id}")
 
+
+
 def process_market_batch(batch_df, batch_id):
 
-    record_count = batch_df.count()
+    batch_df = batch_df.persist()
 
-    if record_count == 0:
-        print(f"Batch {batch_id} is empty. Skipping.")
-        return
+    try:
+        record_count = batch_df.count()
 
-    print(
-        f"Processing batch {batch_id}: "
-        f"{record_count} valid stock records"
-    )
+        if record_count == 0:
+            print(f"Batch {batch_id} is empty. Skipping.")
+            return
 
-    write_stock_batch(batch_df, batch_id)
+        print(
+            f"Processing batch {batch_id}: "
+            f"{record_count} valid stock records"
+        )
 
-    refresh_stock_indicators(batch_df, batch_id)
+        write_stock_batch(batch_df, batch_id)
 
-    print(f"Batch {batch_id} completed successfully")
+        refresh_stock_indicators(batch_df, batch_id)
+
+        print(f"Batch {batch_id} completed successfully")
+
+    finally:
+        batch_df.unpersist()
 
 kafka_data = (spark.readStream
     .format("kafka")
@@ -153,8 +208,6 @@ processed_stock_data = complete_stock_data.withColumn(
         2
     )
 )
-
-
 
 query = (
     processed_stock_data.writeStream
